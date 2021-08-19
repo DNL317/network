@@ -1,0 +1,15 @@
+#post-timestamp {
+    font-size: smaller;
+}
+
+#post-likes {
+    font-size: small;
+}
+
+#post-body {
+    font-size: larger;
+}
+
+#profile-name {
+    display: inline-block
+}
