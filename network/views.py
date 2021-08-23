@@ -9,7 +9,7 @@ from .models import User, Post, Profile
 
 def index(request):
 
-    username_lookup = None
+    print("index running in python")
 
     if request.method == "POST":
         post = request.POST["post-body"]
@@ -19,18 +19,10 @@ def index(request):
 
         new_post.save()
 
-        return render(request, "network/index.html", {
-            "username_lookup": username_lookup
-        })
-
-    else:
-
-        return render(request, "network/index.html", {
-            "username_lookup": username_lookup
-        })
-
+    return render(request, "network/index.html")
 
 def login_view(request):
+    print("login_view running in python")
     if request.method == "POST":
 
         # Attempt to sign user in
@@ -49,13 +41,13 @@ def login_view(request):
     else:
         return render(request, "network/login.html")
 
-
 def logout_view(request):
+    print("logout_view running in python")
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
-
 def register(request):
+    print("register running in python")
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
@@ -88,16 +80,16 @@ def register(request):
 
 def all_posts(request):
 
+    print("all_posts running in python")
     posts = Post.objects.all()
     posts = posts.order_by("-timestamp").all()
+    print(f"{posts}")
 
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
 def follow_count(request, username_lookup):
 
-    user = User.objects.get(username='dannl')
-    profiles = Profile.objects.get(user=user)
-    print(username_lookup)
+    print(f"follow_count running in python")
 
     try:
         user = User.objects.get(username=username_lookup)
@@ -113,17 +105,47 @@ def follow_count(request, username_lookup):
 
 def follow(request, username_lookup):
 
-    if request.method == "POST":
-        followed_user = User.objects.get(username=username_lookup)
-        followed_profile = Profile.objects.get(user=followed_user)
-        following_user = request.user
-        follower_profile = Profile.objects.get(user=following_user)
+    print("follow runnning in python")
 
-        followed_profile.followers.add(following_user)
-        follower_profile.following.add(followed_user)
+    followed_user = User.objects.get(username=username_lookup)
+    print(f"followed_user is {followed_user.username}")
 
-        return False
+    followed_profile = Profile.objects.get(user=followed_user)
 
-    else:
-        pass
+    following_user = request.user
+    print("step 3 done")
+    print(f"following_user is {following_user.username}")
 
+    following_profile = Profile.objects.get(user=following_user)
+
+    followed_profile.followers.add(following_user)
+    following_profile.following.add(followed_user)
+
+    return render(request, "network/index.html")
+
+def unfollow(request, username_lookup):
+
+    print("unfollow runnning in python")
+
+    unfollowed_user = User.objects.get(username=username_lookup)
+    print(f"unfollowed_user is {unfollowed_user.username}")
+
+    unfollowed_profile = Profile.objects.get(user=unfollowed_user)
+
+    unfollowing_user = request.user
+    print("step 3 done")
+    print(f"unfollowing_user is {unfollowing_user.username}")
+
+    unfollowing_profile = Profile.objects.get(user=unfollowing_user)
+
+    unfollowed_profile.followers.remove(unfollowing_user)
+    unfollowing_profile.following.remove(unfollowed_user)
+
+    return render(request, "network/index.html")
+
+def follow_button(request):
+    print("follow_button running in python")
+    current_logged_user = request.user
+    current_logged_profile = Profile.objects.get(user=current_logged_user)
+    print(f"current_logged_profile is {current_logged_profile.user.username}")
+    return JsonResponse([current_logged_profile.serialize()], safe=False)

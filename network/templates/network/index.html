@@ -1,10 +1,9 @@
 {% extends "network/layout.html" %}
 {% load static %}
 
-
-
 {% block body %}
     {% if user.is_authenticated %}
+
         <div id="index-display"> 
             <h3>All Posts</h3>
             <br>
@@ -22,19 +21,20 @@
 
         <div id="profile-display">
             <h3 id="profile-name"></h3>
-
-            <form action="{% url 'follow' username_lookup %}" method="post">
-                {% csrf_token %}
-                <input class="btn btn-primary" type="submit" value="Follow">
-            </form>
             <br>
-            <b id="followers"></b>
-            <b id="following"></b>
-            
-
+            <b>Followers: </b><b id="followers"></b>
+            <b>Following: </b><b id="following"></b>
             <div id="profile-posts">
             </div>
         </div>
+
+        <div id="following-display">
+            <h3>Following</h3>
+            <br>
+            <div id="following-posts">
+            </div>
+        </div>
+
 
     {% else %}
         <strong> Login To See Posts</strong>

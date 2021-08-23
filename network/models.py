@@ -14,10 +14,17 @@ class Profile(models.Model):
         return f"User profile for {self.user}"
 
     def serialize(self):
+        following_users = self.following.all()
+        following_usernames = []
+        for user in following_users:
+            following_usernames.append(user.username)
+
         return {
+            "username": self.user.username,
             "followers": self.followers.count(),
-            "following": self.following.count()
-    }       
+            "following": self.following.count(),
+            "following_usernames": following_usernames
+        }
 
 class Post(models.Model):
     poster = models.ForeignKey(User, on_delete=models.CASCADE, related_name="poster")
@@ -26,7 +33,7 @@ class Post(models.Model):
     likes = models.ManyToManyField(Profile, blank=True, related_name="likes")
 
     def __str__(self):
-        return f"{self.poster} posted '{self.body}' at {self.timestamp}. It has {self.likes} likes"
+        return f"{self.poster} posted '{self.body}' at {self.timestamp}. It has {self.likes.count()} likes"
     
     def serialize(self):
         return {
@@ -35,6 +42,6 @@ class Post(models.Model):
             "timestamp": self.timestamp.strftime("%b %#d %Y, %#I:%M %p"),
             "likes": self.likes.count(),
             "poster": self.poster.username
-    }
+        }
 
     
