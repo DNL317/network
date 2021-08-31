@@ -83,9 +83,29 @@ def all_posts(request):
     print("all_posts running in python")
     posts = Post.objects.all()
     posts = posts.order_by("-timestamp").all()
+
+    return JsonResponse([post.serialize() for post in posts], safe=False)
+
+def profile_posts(request, username_lookup):
+
+    print("profile_posts running in python")
+
+    posts = Post.objects.all().filter(poster__username=username_lookup)
+    posts = posts.order_by("-timestamp").all()
     print(f"{posts}")
 
     return JsonResponse([post.serialize() for post in posts], safe=False)
+
+def following_posts(request):
+
+    print("following_posts running in python")
+    
+    following = Profile.objects.get(user=request.user).following.all()
+    posts = Post.objects.filter(poster__in=following).order_by("-timestamp").all()
+    print(f"{posts}")
+
+    return JsonResponse([post.serialize() for post in posts], safe=False)
+
 
 def follow_count(request, username_lookup):
 
