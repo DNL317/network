@@ -275,9 +275,7 @@ function nav_links_display(show_page_num, page_count) {
 }
 
 function show_page(show_page_num, page_count) {
-    console.log("show_page running");
-    console.log(`page_count is ${page_count}`);
-    console.log(`show_page_num is now ${show_page_num}`);
+
     for (let i = 1; i <= page_count; i++) {
         document.getElementById(`page${i}`).style.display = 'none';
     }
@@ -286,13 +284,11 @@ function show_page(show_page_num, page_count) {
 
 function show_posts(post, i, pages, page_count) {
 
-    console.log("show_posts running")
     //create 'main' div (will add content to it below), and store it in a variable
     const post_display = document.createElement('div');
-    post_display.id = 'post';
+    post_display.id = `post${i}`;
     post_display.className = 'col-lg-10 col-md-20 col-sm-30 border';
     
-    console.log("step 1: div created")
     //create new element for link to profiles, add it to the 'main' div
     const post_poster = document.createElement('div');
     post_poster.id = 'post-poster';
@@ -305,35 +301,98 @@ function show_posts(post, i, pages, page_count) {
     });
     post_display.append(post_poster);  
 
-    console.log("step 2 done")
     //create new div to display post, add it to the 'main' div
     const post_body = document.createElement('div');
-    post_body.id = 'post-body';
+    post_body.id = `post-body-${post.id}`;
+    post_body.className = 'post-body';
     post_body.innerHTML = post.body;
     post_display.append(post_body);
 
-    console.log("step 3 done")
     //create new div to display timestamp, add it to the 'main' div
     const post_timestamp = document.createElement('div');
     post_timestamp.id = 'post-timestamp';
     post_timestamp.innerHTML = post.timestamp;
     post_display.append(post_timestamp);
 
-    console.log("step 4 done")
     //create new div to display # of likes, add it to the 'main' div
     const post_likes = document.createElement('div');
     post_likes.id = 'post-likes';
     post_likes.innerHTML = `Likes: ${post.likes}`;
     post_display.append(post_likes);
 
-    console.log("step 5 done");
-
+    if (post.poster === current_user) {
+        const edit_button = document.createElement('button');
+        edit_button.id = 'edit-button';
+        edit_button.className = `edit${i}`;
+        edit_button.innerHTML = 'Edit';
+        edit_button.addEventListener('click', () => {
+            console.log("edit button clicked");
+            console.log(post);
+            edit_button.style.display = 'none';
+            edit_post(post);
+        });
+        post_display.append(edit_button); 
+    }
 
     //append post to correct page 
     var page_identifier = Math.ceil(i / 10) - 1;
     pages[page_identifier].append(post_display);
-    console.log('post appended to page');
-    console.log(`page_count is ${page_count}`); 
+}
+
+function edit_post(post) {
+
+    const content_div = document.getElementById(`post-body-${post.id}`);
+    content_div.innerHTML = "";
+
+    const edit_form = document.createElement('div');
+    const form_input = document.createElement('input');
+    form_input.setAttribute('type', 'textarea');
+    form_input.setAttribute('name', 'post-body');
+    text_to_edit = post.body;
+    form_input.setAttribute('value', text_to_edit);
+    const save_button = document.createElement('input');
+    save_button.setAttribute('type', 'submit');
+    save_button.setAttribute('value', 'Save');
+    save_button.addEventListener('click', () => {
+        const new_body = form_input.value;
+        console.log(`${new_body}`);
+
+        fetch('/', {
+            method: 'PUT',
+            headers: {
+                'X-CSRFTOKEN': getCookie("csrftoken")
+            },
+            body: body = JSON.stringify({
+                post_id: post.id,
+                new_body: new_body,
+            })
+        })
+        .then(() => {
+            content_div.innerHTML = new_body;
+            edit_form.remove()
+        })
+    });
+    
+    const cancel_button = document.createElement('input');
+    cancel_button.setAttribute('type', 'submit');
+    cancel_button.setAttribute('value', 'Cancel');
+    cancel_button.addEventListener('click', () => {
+        content_div.innerHTML = text_to_edit;
+        edit_form.remove();
+        document.getElementById('edit-button').style.display = 'block';
+    });
+
+    edit_form.append(form_input);
+    edit_form.append(save_button);
+    edit_form.append(cancel_button);
+    content_div.append(edit_form);
+
+}
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length == 2) return parts.pop().split(';').shift();
 }
 
 function show_follow_count(profile) {
@@ -346,14 +405,14 @@ function follow(username_lookup) {
 
     console.log("follow running")
     fetch(`/${username_lookup}/follow`)
-    .then(response => null)
+    .then(response => null);
 }
 
 function unfollow(username_lookup) {
 
     console.log("unfollow running")
     fetch(`/${username_lookup}/unfollow`)
-    .then(response => null)
+    .then(response => null);
 }
 
 function update_followers() {
@@ -421,3 +480,4 @@ function follow_button(username_lookup) {
         });
     });
 }
+

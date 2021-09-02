@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http.response import JsonResponse
+import json
 from django.shortcuts import render
 from django.urls import reverse
 from .models import User, Post, Profile
@@ -11,6 +12,9 @@ def index(request):
 
     print("index running in python")
 
+    current_user = request.user.username
+    print(f"current_user is {current_user}")
+
     if request.method == "POST":
         post = request.POST["post-body"]
         new_post = Post()
@@ -19,7 +23,20 @@ def index(request):
 
         new_post.save()
 
-    return render(request, "network/index.html")
+    elif request.method == "PUT":
+        data = json.loads(request.body)
+        post_id = int(data["post_id"])
+        new_body = data["new_body"]
+        post = Post.objects.filter(id=post_id).first()
+        post.body = new_body
+        post.save()
+        return JsonResponse({
+            "result": True
+        })
+
+    return render(request, "network/index.html", {
+        'current_user': current_user
+    })
 
 def login_view(request):
     print("login_view running in python")
@@ -141,7 +158,11 @@ def follow(request, username_lookup):
     followed_profile.followers.add(following_user)
     following_profile.following.add(followed_user)
 
-    return render(request, "network/index.html")
+    current_user = request.user.username
+
+    return render(request, "network/index.html", {
+        'current_user': current_user
+    })
 
 def unfollow(request, username_lookup):
 
@@ -161,7 +182,11 @@ def unfollow(request, username_lookup):
     unfollowed_profile.followers.remove(unfollowing_user)
     unfollowing_profile.following.remove(unfollowed_user)
 
-    return render(request, "network/index.html")
+    current_user = request.user.username
+
+    return render(request, "network/index.html", {
+        'current_user': current_user
+    })
 
 def follow_button(request):
     print("follow_button running in python")
