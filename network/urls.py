@@ -16,4 +16,6 @@ urlpatterns = [
     path("<str:username_lookup>/follow_button", views.follow_button, name="follow_button"),
     path("profile_info", views.follow_button, name="profile_info"),
     path("following_posts", views.following_posts, name="following_posts"),
+    path("<str:post_liked_id>/like", views.like, name="like"),
+    path("<str:post_unliked_id>/unlike", views.unlike, name="unike")
 ]

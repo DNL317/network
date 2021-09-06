@@ -73,6 +73,7 @@ function load_posts_profile(username_lookup) {
         //hide previous page button by default
         document.querySelector('#previous').style.display = 'none';
 
+        nav_links_display(show_page_num, page_count)
         nav_button_listeners(show_page_num, page_count);
 
         if (page_count < 3) {
@@ -111,6 +112,7 @@ function load_posts_following() {
         //hide previous page button by default
         document.querySelector('#previous').style.display = 'none';
 
+        nav_links_display(show_page_num, page_count);
         nav_button_listeners(show_page_num, page_count);
 
         if (page_count < 3) {
@@ -121,6 +123,12 @@ function load_posts_following() {
         }
         document.getElementById('page-num-first').style.fontWeight = "900";
         document.getElementById('page-num-first').style.textDecoration = "underline";
+
+        document.getElementById('page-num-second').style.fontWeight = "400";
+        document.getElementById('page-num-second').style.textDecoration = "none";
+
+        document.getElementById('page-num-third').style.fontWeight = "400";
+        document.getElementById('page-num-third').style.textDecoration = "none";
 
         create_pages(page_count, post_count, posts);
 
@@ -212,11 +220,15 @@ function nav_links_display(show_page_num, page_count) {
         if (parseInt(show_page_num) === 1) {
             document.querySelector('#previous').style.display = 'none';
             document.querySelector('#next').style.display = 'list-item';
+            document.querySelector('#page-num-first').innerHTML = "1";
+            document.querySelector('#page-num-second').innerHTML = "2";
         }
 
         else {
             document.querySelector('#previous').style.display = 'list-item';
             document.querySelector('#next').style.display = 'none';
+            document.querySelector('#page-num-first').innerHTML = "1";
+            document.querySelector('#page-num-second').innerHTML = "2";
         }
 
     }
@@ -315,10 +327,43 @@ function show_posts(post, i, pages, page_count) {
     post_display.append(post_timestamp);
 
     //create new div to display # of likes, add it to the 'main' div
+    const likes_div = document.createElement('div');
+    likes_div.id = `likes-div-${post.id}`
+
     const post_likes = document.createElement('div');
     post_likes.id = 'post-likes';
     post_likes.innerHTML = `Likes: ${post.likes}`;
-    post_display.append(post_likes);
+    
+    const like_icon = document.createElement('i');
+    like_icon.id = `like_icon_${post.id}`;
+    if (post.liked_by.includes(current_user)) {
+        like_icon.className = 'fas fa-heart';
+    }
+    else {
+        like_icon.className = 'far fa-heart';
+    }
+
+    like_icon.addEventListener('click', () => {
+        console.log("heart icon clicked");
+        if (like_icon.className == 'far fa-heart') {
+            like_icon.className = 'fas fa-heart';
+            post.likes = post.likes + 1;
+            post_likes.innerHTML = `Likes: ${post.likes}`;
+            var post_liked_id = post.id;
+            like(post_liked_id);
+        }
+        else {
+            like_icon.className = 'far fa-heart';
+            post.likes = post.likes - 1;
+            post_likes.innerHTML = `Likes: ${post.likes}`;
+            var post_unliked_id = post.id;
+            unlike(post_unliked_id);
+        }
+    })
+
+    likes_div.append(post_likes)
+    likes_div.append(like_icon);
+    post_display.append(likes_div);
 
     if (post.poster === current_user) {
         const edit_button = document.createElement('button');
@@ -337,6 +382,18 @@ function show_posts(post, i, pages, page_count) {
     //append post to correct page 
     var page_identifier = Math.ceil(i / 10) - 1;
     pages[page_identifier].append(post_display);
+}
+
+function like(post_liked_id) {
+    post_liked_id = post_liked_id.toString();
+    fetch(`/${post_liked_id}/like`)
+    .then(response => null);
+}
+
+function unlike(post_unliked_id) {
+    post_unliked_id = post_unliked_id.toString();
+    fetch(`/${post_unliked_id}/unlike`)
+    .then(response => null);
 }
 
 function edit_post(post) {
@@ -443,40 +500,54 @@ function follow_button(username_lookup) {
     .then(response => response.json())
     .then(current_logged_profile => {
         console.log(current_logged_profile);
-        current_logged_profile.forEach(profile => {
-            if (username_lookup === profile.username) {
-                console.log("own profile found - no follow button");
-            }
-            
-            else if (profile.following_usernames.includes(username_lookup)) {
 
-                console.log("unfollow button");
-                const unfollow_button = document.createElement('button');    
-                unfollow_button.innerHTML = "Unfollow";
-                unfollow_button.style.width = '50px';
-                unfollow_button.style.height = '25px';
-                profile_header = document.querySelector('#profile-name');
-                profile_header.append(unfollow_button);
-                unfollow_button.addEventListener('click', () => {
-                    unfollow(username_lookup);
-                    update_followers_unfollow();
-                })
+        const unfollow_button = document.createElement('button');  
+        unfollow_button.id = "unfollow-button";
+        unfollow_button.innerHTML = "Unfollow";
+        unfollow_button.style.width = '50px';
+        unfollow_button.style.height = '25px';
+        profile_header = document.querySelector('#profile-name');
+        profile_header.append(unfollow_button);
+        unfollow_button.addEventListener('click', () => {
+            document.getElementById('follow-button').style.display = 'block';
+            document.getElementById('unfollow-button').style.display = 'none';
+            unfollow(username_lookup);
+            update_followers_unfollow();
+        console.log("unfollow button created");
+        });
+
+        const follow_button = document.createElement('button');
+        follow_button.id = "follow-button";    
+        follow_button.innerHTML = "Follow";
+        follow_button.style.width = '50px';
+        follow_button.style.height = '25px';
+        profile_header = document.querySelector('#profile-name');
+        profile_header.append(follow_button);
+        follow_button.addEventListener('click', () => {
+            document.getElementById('follow-button').style.display = 'none';
+            document.getElementById('unfollow-button').style.display = 'block';
+            follow(username_lookup);
+            update_followers();
+        console.log("follow button created");
+        });
+
+        current_logged_profile.forEach(profile => {
+
+            if (username_lookup === profile.username) {
+                document.getElementById('unfollow-button').style.display = 'none';
+                document.getElementById('follow-button').style.display = 'none';
+            }
+
+            else if (profile.following_usernames.includes(username_lookup)) {
+                document.getElementById('unfollow-button').style.display = 'block';
+                document.getElementById('follow-button').style.display = 'none';
             }
 
             else {
-                console.log("not already follower - follow button");
-                const follow_button = document.createElement('button');    
-                follow_button.innerHTML = "Follow";
-                follow_button.style.width = '50px';
-                follow_button.style.height = '25px';
-                profile_header = document.querySelector('#profile-name');
-                profile_header.append(follow_button);
-                follow_button.addEventListener('click', () => {
-                    follow(username_lookup);
-                    update_followers();
-                });
+                document.getElementById('follow-button').style.display = 'block';
+                document.getElementById('unfollow-button').style.display = 'none';
             }
-
+            
         });
     });
 }

@@ -119,7 +119,6 @@ def following_posts(request):
     
     following = Profile.objects.get(user=request.user).following.all()
     posts = Post.objects.filter(poster__in=following).order_by("-timestamp").all()
-    print(f"{posts}")
 
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
@@ -189,8 +188,25 @@ def unfollow(request, username_lookup):
     })
 
 def follow_button(request):
+
     print("follow_button running in python")
     current_logged_user = request.user
     current_logged_profile = Profile.objects.get(user=current_logged_user)
     print(f"current_logged_profile is {current_logged_profile.user.username}")
     return JsonResponse([current_logged_profile.serialize()], safe=False)
+
+def like(request, post_liked_id):
+
+    print("like function running")
+    post_liked = Post.objects.filter(id=post_liked_id).first()
+    liking_user = request.user
+    post_liked.likes.add(liking_user)
+    return JsonResponse(True, safe=False)
+
+def unlike(request, post_unliked_id):
+
+    print("unlike function running")
+    post_unliked = Post.objects.filter(id=post_unliked_id).first()
+    unliking_user = request.user
+    post_unliked.likes.remove(unliking_user)
+    return JsonResponse(True, safe=False)

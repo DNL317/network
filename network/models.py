@@ -30,17 +30,24 @@ class Post(models.Model):
     poster = models.ForeignKey(User, on_delete=models.CASCADE, related_name="poster")
     body = models.TextField(max_length=250)
     timestamp = models.DateTimeField(auto_now_add=True, blank=True)
-    likes = models.ManyToManyField(Profile, blank=True, related_name="likes")
+    likes = models.ManyToManyField(User, blank=True, related_name="likes")
 
     def __str__(self):
         return f"{self.poster} posted '{self.body}' at {self.timestamp}. It has {self.likes.count()} likes"
     
     def serialize(self):
+
+        liked_by_list = self.likes.all()
+        liked_by_list_usernames = []
+        for user in liked_by_list:
+            liked_by_list_usernames.append(user.username)
+
         return {
             "id": self.id,
             "body": self.body,
             "timestamp": self.timestamp.strftime("%b %#d %Y, %#I:%M %p"),
             "likes": self.likes.count(),
+            "liked_by": liked_by_list_usernames,
             "poster": self.poster.username
         }
 
