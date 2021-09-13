@@ -5,27 +5,6 @@ from django.db import models
 class User(AbstractUser):
     pass
 
-class Profile(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    followers = models.ManyToManyField(User, blank=True, related_name="followers")
-    following = models.ManyToManyField(User, blank=True, related_name="following")
-
-    def __str__(self):
-        return f"User profile for {self.user}"
-
-    def serialize(self):
-        following_users = self.following.all()
-        following_usernames = []
-        for user in following_users:
-            following_usernames.append(user.username)
-
-        return {
-            "username": self.user.username,
-            "followers": self.followers.count(),
-            "following": self.following.count(),
-            "following_usernames": following_usernames
-        }
-
 class Post(models.Model):
     poster = models.ForeignKey(User, on_delete=models.CASCADE, related_name="poster")
     body = models.TextField(max_length=250)
@@ -50,5 +29,30 @@ class Post(models.Model):
             "liked_by": liked_by_list_usernames,
             "poster": self.poster.username
         }
+
+class Profile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    followers = models.ManyToManyField(User, blank=True, related_name="followers")
+    following = models.ManyToManyField(User, blank=True, related_name="following")
+    liked_posts = models.ManyToManyField(Post, blank=True, related_name="liked_posts")
+
+    def __str__(self):
+        return f"User profile for {self.user}"
+
+    def serialize(self):
+        following_users = self.following.all()
+        following_usernames = []
+        for user in following_users:
+            following_usernames.append(user.username)
+
+        return {
+            "username": self.user.username,
+            "followers": self.followers.count(),
+            "following": self.following.count(),
+            "following_usernames": following_usernames,
+            "liked_post_count": self.liked_posts.count()
+        }
+
+
 
     

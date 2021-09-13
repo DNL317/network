@@ -15,5 +15,14 @@
 }
 
 button {
-    font-size: small
+    font-size: small;
+}
+
+.post-poster {
+    font-size: larger;
+    font-weight: bold;
+}
+
+.red-color {
+    color:red;
 }

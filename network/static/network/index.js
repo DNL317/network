@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelector('#following-link').addEventListener('click', () => load_posts_following());
+    document.querySelector('#liked-link').addEventListener('click', () => load_posts_liked());
 
     load_posts();
 })
@@ -131,6 +132,52 @@ function load_posts_following() {
         document.getElementById('page-num-third').style.textDecoration = "none";
 
         create_pages(page_count, post_count, posts);
+
+    });
+}
+
+function load_posts_liked() {
+
+    console.log("load_posts_liked running");
+
+    show_page_num = 1;
+
+    document.querySelector('#all-posts-display').style.display = 'none';
+    document.querySelector('#profile-following-display').style.display = 'block';
+    document.querySelector('#profile-name').innerHTML = "Liked Posts";
+    document.querySelector('#follow-count-display').style.display = 'none';
+ 
+
+    fetch('liked_posts')
+    .then(response => response.json())
+    .then(liked_posts => {
+        console.log(liked_posts);
+        post_count = liked_posts.length;
+        page_count = Math.ceil(post_count / 10);
+        console.log(`page_count is ${page_count}`);
+
+        //hide previous page button by default
+        document.querySelector('#previous').style.display = 'none';
+
+        nav_links_display(show_page_num, page_count);
+        nav_button_listeners(show_page_num, page_count);
+
+        if (page_count < 3) {
+            if (page_count < 2) {
+                document.querySelector('#page-num-second').style.display = 'none';
+            }
+            document.querySelector('#page-num-third').style.display = 'none';
+        }
+        document.getElementById('page-num-first').style.fontWeight = "900";
+        document.getElementById('page-num-first').style.textDecoration = "underline";
+
+        document.getElementById('page-num-second').style.fontWeight = "400";
+        document.getElementById('page-num-second').style.textDecoration = "none";
+
+        document.getElementById('page-num-third').style.fontWeight = "400";
+        document.getElementById('page-num-third').style.textDecoration = "none";
+
+        create_pages(page_count, post_count, liked_posts);
 
     });
 }
@@ -303,7 +350,7 @@ function show_posts(post, i, pages, page_count) {
     
     //create new element for link to profiles, add it to the 'main' div
     const post_poster = document.createElement('div');
-    post_poster.id = 'post-poster';
+    post_poster.className = 'post-poster';
     post_poster.innerHTML = post.poster;
     post_poster.addEventListener('click', event => {
         document.getElementById('all-posts-display').style.display = 'none';
@@ -326,36 +373,37 @@ function show_posts(post, i, pages, page_count) {
     post_timestamp.innerHTML = post.timestamp;
     post_display.append(post_timestamp);
 
-    //create new div to display # of likes, add it to the 'main' div
+    //create new div to display # of likes and heart icon, add it to the 'main' div
     const likes_div = document.createElement('div');
-    likes_div.id = `likes-div-${post.id}`
+    likes_div.id = `likes-div-${post.id}`;
 
     const post_likes = document.createElement('div');
     post_likes.id = 'post-likes';
-    post_likes.innerHTML = `Likes: ${post.likes}`;
+    post_likes.style = 'display: inline';
+    post_likes.innerHTML = `Likes: ${post.likes}  `;
     
     const like_icon = document.createElement('i');
     like_icon.id = `like_icon_${post.id}`;
     if (post.liked_by.includes(current_user)) {
-        like_icon.className = 'fas fa-heart';
+        like_icon.className = 'fas fa-heart red-color';
     }
     else {
-        like_icon.className = 'far fa-heart';
+        like_icon.className = 'far fa-heart red-color';
     }
 
     like_icon.addEventListener('click', () => {
         console.log("heart icon clicked");
-        if (like_icon.className == 'far fa-heart') {
-            like_icon.className = 'fas fa-heart';
-            post.likes = post.likes + 1;
-            post_likes.innerHTML = `Likes: ${post.likes}`;
+        if (like_icon.className == 'far fa-heart red-color') {
+            like_icon.className = 'fas fa-heart red-color';
+            post.likes++;
+            post_likes.innerHTML = `Likes: ${post.likes}  `;
             var post_liked_id = post.id;
             like(post_liked_id);
         }
         else {
-            like_icon.className = 'far fa-heart';
-            post.likes = post.likes - 1;
-            post_likes.innerHTML = `Likes: ${post.likes}`;
+            like_icon.className = 'far fa-heart red-color';
+            post.likes--;
+            post_likes.innerHTML = `Likes: ${post.likes}  `;
             var post_unliked_id = post.id;
             unlike(post_unliked_id);
         }
@@ -368,7 +416,8 @@ function show_posts(post, i, pages, page_count) {
     if (post.poster === current_user) {
         const edit_button = document.createElement('button');
         edit_button.id = 'edit-button';
-        edit_button.className = `edit${i}`;
+        edit_button.setAttribute('type', 'button')
+        edit_button.className = `btn btn-link`;
         edit_button.innerHTML = 'Edit';
         edit_button.addEventListener('click', () => {
             console.log("edit button clicked");
