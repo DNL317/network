@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-
+    //once DOMContentLoaded, add event listeners to links and start loading all posts
     document.querySelector('#following-link').addEventListener('click', () => load_posts_following());
     document.querySelector('#liked-link').addEventListener('click', () => load_posts_liked());
 
@@ -14,7 +14,7 @@ function load_posts() {
     document.querySelector('#profile-following-display').style.display = 'none';
 
     var show_page_num = 1;
-
+    //fetch all posts and determine number of pages needed
     fetch('/all_posts')
     .then(response => response.json())
     .then(posts => {
@@ -29,7 +29,7 @@ function load_posts() {
 
         nav_button_listeners(show_page_num, page_count);
 
-        //display page-nav for only pages that exist
+        //display page-nav for only pages that exist and set default styles
         if (page_count < 3) {
             if (page_count < 2) {
                 document.querySelector('#page-num-second').style.display = 'none';
@@ -38,6 +38,12 @@ function load_posts() {
         }
         document.getElementById('page-num-first').style.fontWeight = "900";
         document.getElementById('page-num-first').style.textDecoration = "underline";
+
+        document.getElementById('page-num-second').style.fontWeight = "400";
+        document.getElementById('page-num-second').style.textDecoration = "none";
+
+        document.getElementById('page-num-third').style.fontWeight = "400";
+        document.getElementById('page-num-third').style.textDecoration = "none";
 
         create_pages(page_count, post_count, posts)
     });
@@ -53,7 +59,7 @@ function load_posts_profile(username_lookup) {
     document.querySelector('#profile-following-display').style.display = 'block';
     document.querySelector('#follow-count-display').style.display = 'block';
     document.querySelector('#profile-name').innerHTML = username_lookup;
-
+    //fetch the profile clicked so can determine followe count and if user follows them already
     fetch(`/${username_lookup}/profile`)
     .then(response => response.json())
     .then(profiles => {
@@ -62,7 +68,7 @@ function load_posts_profile(username_lookup) {
         follow_button(username_lookup, profiles);
     });
     
-
+    //fetch only clicked profile's posts and determine number of pages needed
     fetch(`/${username_lookup}/posts`)
     .then(response => response.json())
     .then(posts => {
@@ -77,6 +83,7 @@ function load_posts_profile(username_lookup) {
         nav_links_display(show_page_num, page_count)
         nav_button_listeners(show_page_num, page_count);
 
+        //display page-nav for only pages that exist and set default styles
         if (page_count < 3) {
             if (page_count < 2) {
                 document.querySelector('#page-num-second').style.display = 'none';
@@ -85,6 +92,12 @@ function load_posts_profile(username_lookup) {
         }
         document.getElementById('page-num-first').style.fontWeight = "900";
         document.getElementById('page-num-first').style.textDecoration = "underline";
+
+        document.getElementById('page-num-second').style.fontWeight = "400";
+        document.getElementById('page-num-second').style.textDecoration = "none";
+
+        document.getElementById('page-num-third').style.fontWeight = "400";
+        document.getElementById('page-num-third').style.textDecoration = "none";
 
         create_pages(page_count, post_count, posts);
     });
@@ -101,7 +114,7 @@ function load_posts_following() {
     document.querySelector('#profile-name').innerHTML = "Following";
     document.querySelector('#follow-count-display').style.display = 'none';
  
-
+    //fetch only followed profiles' posts and determine number of pages needed
     fetch('following_posts')
     .then(response => response.json())
     .then(posts => {
@@ -116,6 +129,7 @@ function load_posts_following() {
         nav_links_display(show_page_num, page_count);
         nav_button_listeners(show_page_num, page_count);
 
+        //display page-nav for only pages that exist and set default styles
         if (page_count < 3) {
             if (page_count < 2) {
                 document.querySelector('#page-num-second').style.display = 'none';
@@ -147,7 +161,7 @@ function load_posts_liked() {
     document.querySelector('#profile-name').innerHTML = "Liked Posts";
     document.querySelector('#follow-count-display').style.display = 'none';
  
-
+    //fetch only liked posts and determine number of pages needed
     fetch('liked_posts')
     .then(response => response.json())
     .then(liked_posts => {
@@ -162,6 +176,7 @@ function load_posts_liked() {
         nav_links_display(show_page_num, page_count);
         nav_button_listeners(show_page_num, page_count);
 
+        //display page-nav for only pages that exist and set default styles
         if (page_count < 3) {
             if (page_count < 2) {
                 document.querySelector('#page-num-second').style.display = 'none';
@@ -553,7 +568,7 @@ function follow_button(username_lookup) {
         const unfollow_button = document.createElement('button');  
         unfollow_button.id = "unfollow-button";
         unfollow_button.innerHTML = "Unfollow";
-        unfollow_button.style.width = '50px';
+        unfollow_button.style.width = '65px';
         unfollow_button.style.height = '25px';
         profile_header = document.querySelector('#profile-name');
         profile_header.append(unfollow_button);

@@ -142,32 +142,19 @@ def liked_posts(request):
 def follow_count(request, username_lookup):
 
     print(f"follow_count running in python")
-
-    try:
-        user = User.objects.get(username=username_lookup)
-    except User.DoesNotExist:
-        pass
-
-    try:
-        profiles = Profile.objects.get(user=user)
-    except Profile.DoesNotExist:
-        pass
-
+    #return profile clicked
+    user = User.objects.get(username=username_lookup)
+    profiles = Profile.objects.get(user=user)
     return JsonResponse([profiles.serialize()], safe=False)
 
 def follow(request, username_lookup):
 
     print("follow runnning in python")
-
+    #add following and followed users to profile
     followed_user = User.objects.get(username=username_lookup)
-    print(f"followed_user is {followed_user.username}")
-
     followed_profile = Profile.objects.get(user=followed_user)
 
     following_user = request.user
-    print("step 3 done")
-    print(f"following_user is {following_user.username}")
-
     following_profile = Profile.objects.get(user=following_user)
 
     followed_profile.followers.add(following_user)
@@ -182,16 +169,11 @@ def follow(request, username_lookup):
 def unfollow(request, username_lookup):
 
     print("unfollow runnning in python")
-
+    #remove following and followed users from profile
     unfollowed_user = User.objects.get(username=username_lookup)
-    print(f"unfollowed_user is {unfollowed_user.username}")
-
     unfollowed_profile = Profile.objects.get(user=unfollowed_user)
 
     unfollowing_user = request.user
-    print("step 3 done")
-    print(f"unfollowing_user is {unfollowing_user.username}")
-
     unfollowing_profile = Profile.objects.get(user=unfollowing_user)
 
     unfollowed_profile.followers.remove(unfollowing_user)
@@ -204,16 +186,17 @@ def unfollow(request, username_lookup):
     })
 
 def follow_button(request):
-
+    
     print("follow_button running in python")
+    #return profile so can determine if already followed
     current_logged_user = request.user
     current_logged_profile = Profile.objects.get(user=current_logged_user)
-    print(f"current_logged_profile is {current_logged_profile.user.username}")
     return JsonResponse([current_logged_profile.serialize()], safe=False)
 
 def like(request, post_liked_id):
 
     print("like function running")
+    #add liked post to profile and profile to liked post
     post_liked = Post.objects.filter(id=post_liked_id).first()
     liking_user = request.user
     post_liked.likes.add(liking_user)
@@ -226,6 +209,7 @@ def like(request, post_liked_id):
 def unlike(request, post_unliked_id):
 
     print("unlike function running")
+    #remove liked post from profile and profile from liked post
     post_unliked = Post.objects.filter(id=post_unliked_id).first()
     unliking_user = request.user
     post_unliked.likes.remove(unliking_user)
