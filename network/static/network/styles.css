@@ -14,10 +14,6 @@
     display: inline-block
 }
 
-button {
-    font-size: small;
-}
-
 .post-poster {
     font-size: larger;
     font-weight: bold;

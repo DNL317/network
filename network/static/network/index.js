@@ -28,23 +28,7 @@ function load_posts() {
         document.querySelector('#previous').style.display = 'none';
 
         nav_button_listeners(show_page_num, page_count);
-
-        //display page-nav for only pages that exist and set default styles
-        if (page_count < 3) {
-            if (page_count < 2) {
-                document.querySelector('#page-num-second').style.display = 'none';
-            }
-            document.querySelector('#page-num-third').style.display = 'none';
-        }
-        document.getElementById('page-num-first').style.fontWeight = "900";
-        document.getElementById('page-num-first').style.textDecoration = "underline";
-
-        document.getElementById('page-num-second').style.fontWeight = "400";
-        document.getElementById('page-num-second').style.textDecoration = "none";
-
-        document.getElementById('page-num-third').style.fontWeight = "400";
-        document.getElementById('page-num-third').style.textDecoration = "none";
-
+        set_nav_styles(page_count)
         create_pages(page_count, post_count, posts)
     });
 }
@@ -82,23 +66,7 @@ function load_posts_profile(username_lookup) {
 
         nav_links_display(show_page_num, page_count)
         nav_button_listeners(show_page_num, page_count);
-
-        //display page-nav for only pages that exist and set default styles
-        if (page_count < 3) {
-            if (page_count < 2) {
-                document.querySelector('#page-num-second').style.display = 'none';
-            }
-            document.querySelector('#page-num-third').style.display = 'none';
-        }
-        document.getElementById('page-num-first').style.fontWeight = "900";
-        document.getElementById('page-num-first').style.textDecoration = "underline";
-
-        document.getElementById('page-num-second').style.fontWeight = "400";
-        document.getElementById('page-num-second').style.textDecoration = "none";
-
-        document.getElementById('page-num-third').style.fontWeight = "400";
-        document.getElementById('page-num-third').style.textDecoration = "none";
-
+        set_nav_styles(page_count)
         create_pages(page_count, post_count, posts);
     });
 }
@@ -128,23 +96,7 @@ function load_posts_following() {
 
         nav_links_display(show_page_num, page_count);
         nav_button_listeners(show_page_num, page_count);
-
-        //display page-nav for only pages that exist and set default styles
-        if (page_count < 3) {
-            if (page_count < 2) {
-                document.querySelector('#page-num-second').style.display = 'none';
-            }
-            document.querySelector('#page-num-third').style.display = 'none';
-        }
-        document.getElementById('page-num-first').style.fontWeight = "900";
-        document.getElementById('page-num-first').style.textDecoration = "underline";
-
-        document.getElementById('page-num-second').style.fontWeight = "400";
-        document.getElementById('page-num-second').style.textDecoration = "none";
-
-        document.getElementById('page-num-third').style.fontWeight = "400";
-        document.getElementById('page-num-third').style.textDecoration = "none";
-
+        set_nav_styles(page_count)
         create_pages(page_count, post_count, posts);
 
     });
@@ -175,23 +127,7 @@ function load_posts_liked() {
 
         nav_links_display(show_page_num, page_count);
         nav_button_listeners(show_page_num, page_count);
-
-        //display page-nav for only pages that exist and set default styles
-        if (page_count < 3) {
-            if (page_count < 2) {
-                document.querySelector('#page-num-second').style.display = 'none';
-            }
-            document.querySelector('#page-num-third').style.display = 'none';
-        }
-        document.getElementById('page-num-first').style.fontWeight = "900";
-        document.getElementById('page-num-first').style.textDecoration = "underline";
-
-        document.getElementById('page-num-second').style.fontWeight = "400";
-        document.getElementById('page-num-second').style.textDecoration = "none";
-
-        document.getElementById('page-num-third').style.fontWeight = "400";
-        document.getElementById('page-num-third').style.textDecoration = "none";
-
+        set_nav_styles(page_count)
         create_pages(page_count, post_count, liked_posts);
 
     });
@@ -245,6 +181,23 @@ function nav_button_listeners(show_page_num, page_count) {
         nav_links_display(show_page_num, page_count)
         show_page(show_page_num, page_count);
     });
+}
+
+function set_nav_styles(page_count) {
+    if (page_count < 3) {
+        if (page_count < 2) {
+            document.querySelector('#page-num-second').style.display = 'none';
+        }
+        document.querySelector('#page-num-third').style.display = 'none';
+    }
+    document.getElementById('page-num-first').style.fontWeight = "900";
+    document.getElementById('page-num-first').style.textDecoration = "underline";
+
+    document.getElementById('page-num-second').style.fontWeight = "400";
+    document.getElementById('page-num-second').style.textDecoration = "none";
+
+    document.getElementById('page-num-third').style.fontWeight = "400";
+    document.getElementById('page-num-third').style.textDecoration = "none";
 }
 
 function create_pages(page_count, post_count, posts) {
@@ -567,9 +520,8 @@ function follow_button(username_lookup) {
 
         const unfollow_button = document.createElement('button');  
         unfollow_button.id = "unfollow-button";
+        unfollow_button.className = "btn btn-primary btn-sm"
         unfollow_button.innerHTML = "Unfollow";
-        unfollow_button.style.width = '65px';
-        unfollow_button.style.height = '25px';
         profile_header = document.querySelector('#profile-name');
         profile_header.append(unfollow_button);
         unfollow_button.addEventListener('click', () => {
@@ -581,10 +533,9 @@ function follow_button(username_lookup) {
         });
 
         const follow_button = document.createElement('button');
-        follow_button.id = "follow-button";    
+        follow_button.id = "follow-button"; 
+        follow_button.className = "btn btn-outline-primary btn-sm"
         follow_button.innerHTML = "Follow";
-        follow_button.style.width = '50px';
-        follow_button.style.height = '25px';
         profile_header = document.querySelector('#profile-name');
         profile_header.append(follow_button);
         follow_button.addEventListener('click', () => {
